@@ -2380,8 +2380,8 @@ static int CollapseStagesToGLSL(void)
 
 			if (pStage->adjustColorsForFog)
 			{
-				skip = qtrue;
-				break;
+				//skip = qtrue;
+				//break;
 			}
 
 			if (pStage->bundle[0].tcGen == TCGEN_LIGHTMAP)
