@@ -17,21 +17,22 @@ endif
 ifndef BUILD_CLIENT
   BUILD_CLIENT     =
 endif
-ifndef BUILD_SERVER
-  BUILD_SERVER     =
-endif
-ifndef BUILD_GAME_SO
-  BUILD_GAME_SO    =
-endif
-ifndef BUILD_GAME_QVM
-  BUILD_GAME_QVM   =
-endif
-ifndef BUILD_BASEGAME
-  BUILD_BASEGAME =
-endif
-ifndef BUILD_MISSIONPACK
-  BUILD_MISSIONPACK=
-endif
+#ifndef BUILD_SERVER
+  BUILD_SERVER     =0
+#endif
+#ifndef BUILD_GAME_SO
+  BUILD_GAME_SO    =0
+#endif
+#ifndef BUILD_GAME_QVM
+  BUILD_GAME_QVM   =0
+#endif
+#ifndef BUILD_BASEGAME
+  BUILD_BASEGAME =0
+#endif
+#ifndef BUILD_MISSIONPACK
+  BUILD_MISSIONPACK=0
+#endif
+  USE_RENDERER_DLOPEN=0
 ifndef BUILD_RENDERER_OPENGL2
   BUILD_RENDERER_OPENGL2=
 endif
@@ -108,7 +109,7 @@ VERSION=1.36
 endif
 
 ifndef CLIENTBIN
-CLIENTBIN=ioquake3
+CLIENTBIN=ioquake3hq
 endif
 
 ifndef SERVERBIN
@@ -978,7 +979,10 @@ endif
 TARGETS =
 
 ifndef FULLBINEXT
-  FULLBINEXT=.$(ARCH)$(BINEXT)
+  FULLBINEXT=$(BINEXT)
+    ifeq ($(ARCH),x86_64)
+      FULLBINEXT=64$(BINEXT)
+	endif
 endif
 
 ifndef SHLIBNAME
@@ -996,9 +1000,9 @@ ifneq ($(BUILD_CLIENT),0)
       TARGETS += $(B)/renderer_opengl2_$(SHLIBNAME)
     endif
   else
-    TARGETS += $(B)/$(CLIENTBIN)$(FULLBINEXT)
+#    TARGETS += $(B)/$(CLIENTBIN)$_opengl1(FULLBINEXT)
     ifneq ($(BUILD_RENDERER_OPENGL2),0)
-      TARGETS += $(B)/$(CLIENTBIN)_opengl2$(FULLBINEXT)
+      TARGETS += $(B)/$(CLIENTBIN)$(FULLBINEXT)
     endif
   endif
 endif
@@ -1409,7 +1413,7 @@ endif
 $(B).zip: $(TARGETS)
 ifeq ($(PLATFORM),darwin)
   ifdef ARCHIVE
-	@("./make-macosx-app.sh" release $(ARCH); if [ "$$?" -eq 0 ] && [ -d "$(B)/ioquake3.app" ]; then rm -f $@; cd $(B) && zip --symlinks -r9 ../../$@ `find "ioquake3.app" -print | sed -e "s!$(B)/!!g"`; else rm -f $@; cd $(B) && zip -r9 ../../$@ $(NAKED_TARGETS); fi)
+	@("./make-macosx-app.sh" release $(ARCH); if [ "$$?" -eq 0 ] && [ -d "$(B)/ioquake3hq.app" ]; then rm -f $@; cd $(B) && zip --symlinks -r9 ../../$@ `find "ioquake3hq.app" -print | sed -e "s!$(B)/!!g"`; else rm -f $@; cd $(B) && zip -r9 ../../$@ $(NAKED_TARGETS); fi)
   endif
 endif
 ifneq ($(PLATFORM),darwin)
@@ -2201,13 +2205,13 @@ $(B)/renderer_opengl2_$(SHLIBNAME): $(Q3R2OBJ) $(Q3R2STRINGOBJ) $(JPGOBJ)
 	$(Q)$(CC) $(CFLAGS) $(SHLIBLDFLAGS) -o $@ $(Q3R2OBJ) $(Q3R2STRINGOBJ) $(JPGOBJ) \
 		$(THREAD_LIBS) $(LIBSDLMAIN) $(RENDERER_LIBS) $(LIBS)
 else
-$(B)/$(CLIENTBIN)$(FULLBINEXT): $(Q3OBJ) $(Q3ROBJ) $(JPGOBJ) $(LIBSDLMAIN)
+$(B)/$(CLIENTBIN)_opengl1$(FULLBINEXT): $(Q3OBJ) $(Q3ROBJ) $(JPGOBJ) $(LIBSDLMAIN)
 	$(echo_cmd) "LD $@"
 	$(Q)$(CC) $(CLIENT_CFLAGS) $(CFLAGS) $(CLIENT_LDFLAGS) $(LDFLAGS) $(NOTSHLIBLDFLAGS) \
 		-o $@ $(Q3OBJ) $(Q3ROBJ) $(JPGOBJ) \
 		$(LIBSDLMAIN) $(CLIENT_LIBS) $(RENDERER_LIBS) $(LIBS)
 
-$(B)/$(CLIENTBIN)_opengl2$(FULLBINEXT): $(Q3OBJ) $(Q3R2OBJ) $(Q3R2STRINGOBJ) $(JPGOBJ) $(LIBSDLMAIN)
+$(B)/$(CLIENTBIN)$(FULLBINEXT): $(Q3OBJ) $(Q3R2OBJ) $(Q3R2STRINGOBJ) $(JPGOBJ) $(LIBSDLMAIN)
 	$(echo_cmd) "LD $@"
 	$(Q)$(CC) $(CLIENT_CFLAGS) $(CFLAGS) $(CLIENT_LDFLAGS) $(LDFLAGS) $(NOTSHLIBLDFLAGS) \
 		-o $@ $(Q3OBJ) $(Q3R2OBJ) $(Q3R2STRINGOBJ) $(JPGOBJ) \
@@ -2880,7 +2884,7 @@ ifneq ($(BUILD_GAME_SO),0)
 endif
 
 ifneq ($(BUILD_CLIENT),0)
-	$(INSTALL) $(STRIP_FLAG) -m 0755 $(BR)/$(CLIENTBIN)$(FULLBINEXT) $(COPYBINDIR)/$(CLIENTBIN)$(FULLBINEXT)
+	$(INSTALL) $(STRIP_FLAG) -m 0755 $(BR)/$(CLIENTBIN)_opengl1$(FULLBINEXT) $(COPYBINDIR)/$(CLIENTBIN)_opengl1$(FULLBINEXT)
   ifneq ($(USE_RENDERER_DLOPEN),0)
 	$(INSTALL) $(STRIP_FLAG) -m 0755 $(BR)/renderer_opengl1_$(SHLIBNAME) $(COPYBINDIR)/renderer_opengl1_$(SHLIBNAME)
     ifneq ($(BUILD_RENDERER_OPENGL2),0)
@@ -2888,7 +2892,7 @@ ifneq ($(BUILD_CLIENT),0)
     endif
   else
     ifneq ($(BUILD_RENDERER_OPENGL2),0)
-	$(INSTALL) $(STRIP_FLAG) -m 0755 $(BR)/$(CLIENTBIN)_opengl2$(FULLBINEXT) $(COPYBINDIR)/$(CLIENTBIN)_opengl2$(FULLBINEXT)
+	$(INSTALL) $(STRIP_FLAG) -m 0755 $(BR)/$(CLIENTBIN)$(FULLBINEXT) $(COPYBINDIR)/$(CLIENTBIN)$(FULLBINEXT)
     endif
   endif
 endif

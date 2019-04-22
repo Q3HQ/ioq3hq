@@ -2366,6 +2366,9 @@ void Com_ExecuteCfg(void)
 	Cbuf_ExecuteText(EXEC_NOW, "exec default.cfg\n");
 	Cbuf_Execute(); // Always execute after exec to prevent text buffer overflowing
 
+	Cbuf_ExecuteText(EXEC_NOW, "exec default_ioquake3hq.cfg\n");
+	Cbuf_Execute();
+
 	if(!Com_SafeMode())
 	{
 		// skip the q3config.cfg and autoexec.cfg if "safe" is on the command line
