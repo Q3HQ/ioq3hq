@@ -96,7 +96,7 @@ static void R_SetFlareCoeff( void ) {
 	if(r_flareCoeff->value == 0.0f)
 		flareCoeff = atof(FLARE_STDCOEFF);
 	else
-		flareCoeff = r_flareCoeff->value;
+		flareCoeff = r_flareCoeff->value * pow(r_flares->value, 2.7369656);
 }
 
 /*
@@ -352,7 +352,7 @@ void RB_RenderFlare( flare_t *f ) {
 		distance = -f->eyeZ;
 
 	// calculate the flare size..
-	size = backEnd.viewParms.viewportWidth * ( r_flareSize->value/640.0f + 8 / distance );
+	size = backEnd.viewParms.viewportWidth * ( r_flareSize->value * pow(r_flares->value, 0.5849625)/640.0f + 8 / distance );
 
 /*
  * This is an alternative to intensity scaling. It changes the size of the flare on screen instead
@@ -474,7 +474,7 @@ void RB_RenderFlares (void) {
 	qboolean	draw;
 	mat4_t    oldmodelview, oldprojection, matrix;
 
-	if ( !r_flares->integer ) {
+	if ( r_flares <= 0 ) {
 		return;
 	}
 
